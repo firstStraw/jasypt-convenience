@@ -2,6 +2,11 @@ package com.github.firststraw.jasypt;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.Provider;
+import org.jasypt.encryption.pbe.config.PBEConfig;
+import org.jasypt.encryption.pbe.config.SimplePBEConfig;
+import org.jasypt.salt.SaltGenerator;
+import org.jasypt.salt.StringFixedSaltGenerator;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -14,44 +19,41 @@ public class JasyptPBEncryptorTest {
     private static final String PASSWORD = "@#lksjfa#$@%T";
     private static final String SALT = "1234567890123";
 
+    private static final BigDecimal DECIMAL_MSG = new BigDecimal(10.0);
+    private static final BigDecimal ENCRYPTED_DECIMAL_MSG =
+            new BigDecimal("22994364563605601831629094920");
+
+    private static final BigInteger INTEGER_MSG = new BigInteger("10");
+    private static final BigInteger ENCRYPTED_INTEGER_MSG =
+            new BigInteger("22994364563605601831629094920");
+
+    private static final byte[] BYTE_MSG = new byte[]{100, 56, -125, 3};
+    private static final byte[] ENCRYPTED_BYTE_MSG =
+            new byte[]{-8, -54, 107, -14, -113, -26, 54, 38};
+
+    private static final String STRING_MSG = "testmessage";
+    private static final String ENCRYPTED_STRING_MSG = "ubIQyfUVsLvlWBj64qmiUw==";
+
     /**
-     * Tests the {@link JasyptPBEncryptor#JasyptPBEncryptor(java.lang.String, java.lang.String)}
-     * constructor. Checks that when the password is {@code null}, then a
+     * Tests the
+     * {@link JasyptPBEncryptor#JasyptPBEncryptor(org.jasypt.encryption.pbe.config.PBEConfig)}
+     * constructor. Checks that when no {@link PBEConfig} is specified, then a
      * {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testConstructorNullPassword() {
-        getEncryptor(null, SALT);
+    public void testConstructorNullConfig() {
+        new JasyptPBEncryptor(null);
     }
 
     /**
-     * Tests the {@link JasyptPBEncryptor#JasyptPBEncryptor(java.lang.String, java.lang.String)}
-     * constructor. Checks that when the password is empty, then an {@link IllegalArgumentException}
-     * is thrown.
+     * Tests the
+     * {@link JasyptPBEncryptor#JasyptPBEncryptor(org.jasypt.encryption.pbe.config.PBEConfig)}
+     * constructor. Checks that when the pool size is invalid, then an
+     * {@link IllegalArgumentException} is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorEmptyPassword() {
-        getEncryptor("", SALT);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#JasyptPBEncryptor(java.lang.String, java.lang.String)}
-     * constructor. Checks that when the salt is {@code null}, then a {@link NullPointerException}
-     * is thrown.
-     */
-    @Test(expected = NullPointerException.class)
-    public void testConstructorNullSalt() {
-        getEncryptor(PASSWORD, null);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#JasyptPBEncryptor(java.lang.String, java.lang.String)}
-     * constructor. Checks that when the salt is empty, then an {@link IllegalArgumentException} is
-     * thrown.
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorEmptySalt() {
-        getEncryptor(PASSWORD, "");
+    public void testConstructorInvalidPoolSize() {
+        getEncryptor(SALT, PASSWORD, 0, true);
     }
 
     /**
@@ -60,19 +62,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testEncryptBigDecimalNullMessage() {
-        getEncryptor().encrypt((BigDecimal) null);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#encrypt(java.math.BigDecimal)} method. Checks that the
-     * {@link BigDecimal} is encrypted correctly.
-     */
-    @Test
-    public void testEncryptBigDecimal() {
-        final BigDecimal message = new BigDecimal(10.0);
-        final BigDecimal expected = new BigDecimal("22994364563605601831629094920");
-
-        assertEquals(expected, getEncryptor().encrypt(message));
+        getEncryptor(PASSWORD, SALT, null, true).encrypt((BigDecimal) null);
     }
 
     /**
@@ -81,19 +71,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testEncryptBigIntegerNullMessage() {
-        getEncryptor().encrypt((BigInteger) null);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#encrypt(java.math.BigInteger)} method. Checks that the
-     * {@link BigInteger} is encrypted correctly.
-     */
-    @Test
-    public void testEncryptBigInteger() {
-        final BigInteger message = new BigInteger("10");
-        final BigInteger expected = new BigInteger("22994364563605601831629094920");
-
-        assertEquals(expected, getEncryptor().encrypt(message));
+        getEncryptor(PASSWORD, SALT, null, true).encrypt((BigInteger) null);
     }
 
     /**
@@ -102,7 +80,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testEncryptBytesNullMessage() {
-        getEncryptor().encrypt((byte[]) null);
+        getEncryptor(PASSWORD, SALT, null, true).encrypt((byte[]) null);
     }
 
     /**
@@ -111,19 +89,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testEncryptBytesEmptyMessage() {
-        getEncryptor().encrypt(new byte[0]);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#encrypt(byte[])} method. Checks that the {@link byte}s are
-     * encrypted correctly.
-     */
-    @Test
-    public void testEncryptBytes() {
-        final byte[] message = new byte[]{100, 56, -125, 3};
-        final byte[] expected = new byte[]{-8, -54, 107, -14, -113, -26, 54, 38};
-
-        assertArrayEquals(expected, getEncryptor().encrypt(message));
+        getEncryptor(PASSWORD, SALT, null, true).encrypt(new byte[0]);
     }
 
     /**
@@ -132,7 +98,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testEncryptStringNullMessage() {
-        getEncryptor().encrypt((String) null);
+        getEncryptor(PASSWORD, SALT, null, true).encrypt((String) null);
     }
 
     /**
@@ -141,19 +107,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testEncryptStringEmptyMessage() {
-        getEncryptor().encrypt("");
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#encrypt(java.lang.String)} method. Checks that the
-     * {@link String} is encrypted correctly.
-     */
-    @Test
-    public void testEncryptString() {
-        final String message = "testmessage";
-        final String expected = "ubIQyfUVsLvlWBj64qmiUw==";
-
-        assertEquals(expected, getEncryptor().encrypt(message));
+        getEncryptor(PASSWORD, SALT, null, true).encrypt("");
     }
 
     /**
@@ -162,19 +116,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testDecryptBigDecimalNullMessage() {
-        getEncryptor().decrypt((BigDecimal) null);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#decrypt(java.math.BigDecimal)} method. Checks that the
-     * {@link BigDecimal} is decrypted correctly.
-     */
-    @Test
-    public void testDecryptBigDecimal() {
-        final BigDecimal expected = new BigDecimal(10.0);
-        final BigDecimal encryptedMessage = new BigDecimal("22994364563605601831629094920");
-
-        assertEquals(expected, getEncryptor().decrypt(encryptedMessage));
+        getEncryptor(PASSWORD, SALT, null, true).decrypt((BigDecimal) null);
     }
 
     /**
@@ -183,19 +125,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testDecryptBigIntegerNullMessage() {
-        getEncryptor().decrypt((BigInteger) null);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#decrypt(java.math.BigInteger)} method. Checks that the
-     * {@link BigInteger} is decrypted correctly.
-     */
-    @Test
-    public void testDecryptBigInteger() {
-        final BigInteger expected = new BigInteger("10");
-        final BigInteger encryptedMessage = new BigInteger("22994364563605601831629094920");
-
-        assertEquals(expected, getEncryptor().decrypt(encryptedMessage));
+        getEncryptor(PASSWORD, SALT, null, true).decrypt((BigInteger) null);
     }
 
     /**
@@ -204,7 +134,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testDecryptBytesNullMessage() {
-        getEncryptor().decrypt((byte[]) null);
+        getEncryptor(PASSWORD, SALT, null, true).decrypt((byte[]) null);
     }
 
     /**
@@ -213,19 +143,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testDecryptBytesEmptyMessage() {
-        getEncryptor().decrypt(new byte[0]);
-    }
-
-    /**
-     * Tests the {@link JasyptPBEncryptor#decrypt(byte[])} method. Checks that the bytes are
-     * decrypted correctly.
-     */
-    @Test
-    public void testDecryptBytes() {
-        final byte[] expected = new byte[]{100, 56, -125, 3};
-        final byte[] encryptedMessage = new byte[]{-8, -54, 107, -14, -113, -26, 54, 38};
-
-        assertArrayEquals(expected, getEncryptor().decrypt(encryptedMessage));
+        getEncryptor(PASSWORD, SALT, null, true).decrypt(new byte[0]);
     }
 
     /**
@@ -234,7 +152,7 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = NullPointerException.class)
     public void testDecryptStringNullMessage() {
-        getEncryptor().decrypt((String) null);
+        getEncryptor(PASSWORD, SALT, null, true).decrypt((String) null);
     }
 
     /**
@@ -243,39 +161,145 @@ public class JasyptPBEncryptorTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testDecryptStringEmptyMessage() {
-        getEncryptor().decrypt("");
+        getEncryptor(PASSWORD, SALT, null, true).decrypt("");
     }
 
     /**
-     * Tests the {@link JasyptPBEncryptor#decrypt(java.lang.String)}. Checks that the {@link String}
-     * is decrypted correctly.
+     * Tests encryption and decryption using "standard" encryptors when no pool size is specified.
      */
     @Test
-    public void testDecryptString() {
-        final String expected = "testmessage";
-        final String encryptedMessage = "ubIQyfUVsLvlWBj64qmiUw==";
-
-        assertEquals(expected, getEncryptor().decrypt(encryptedMessage));
+    public void testStandardEncryptorsWithPoolSizeNull() {
+        testEncryptors(getEncryptor(PASSWORD, SALT, null, true));
     }
 
     /**
-     * Builds an encryptor with the password and salt used for testing.
-     *
-     * @return the {@link JasyptPBEncryptor} initialized with the password and salt used for testing
+     * Tests encryption and decryption using "standard" encryptors when the pool size is 1.
      */
-    private JasyptPBEncryptor getEncryptor() {
-        return getEncryptor(PASSWORD, SALT);
+    @Test
+    public void testStandardEncryptorsWithPoolSize1() {
+        testEncryptors(getEncryptor(PASSWORD, SALT, 1, true));
     }
 
     /**
-     * Builds an encryptor with the specified password and salt.
-     *
-     * @param password the password to initialize the encryptor with
-     * @param salt the salt to initialize the encryptor with
-     * @return the {@link JasyptPBEncryptor} initialized with the specified password and salt
+     * Tests encryption and decryption using "pooled" encryptors.
      */
-    private JasyptPBEncryptor getEncryptor(final String password, final String salt) {
-        return new JasyptPBEncryptor(password, salt);
+    @Test
+    public void testPooledEncryptors() {
+        testEncryptors(getEncryptor(PASSWORD, SALT, 2, false));
+    }
+
+    /**
+     * Tests encryption and decryption using the specified encryptor.
+     *
+     * @param encryptor the encryptor to test encryption and decryption with
+     */
+    private static void testEncryptors(final JasyptPBEncryptor encryptor) {
+        assertEquals(ENCRYPTED_DECIMAL_MSG, encryptor.encrypt(DECIMAL_MSG));
+        assertEquals(ENCRYPTED_INTEGER_MSG, encryptor.encrypt(INTEGER_MSG));
+        assertArrayEquals(ENCRYPTED_BYTE_MSG, encryptor.encrypt(BYTE_MSG));
+        assertEquals(ENCRYPTED_STRING_MSG, encryptor.encrypt(STRING_MSG));
+        assertEquals(DECIMAL_MSG, encryptor.decrypt(ENCRYPTED_DECIMAL_MSG));
+        assertEquals(INTEGER_MSG, encryptor.decrypt(ENCRYPTED_INTEGER_MSG));
+        assertArrayEquals(BYTE_MSG, encryptor.decrypt(ENCRYPTED_BYTE_MSG));
+        assertEquals(STRING_MSG, encryptor.decrypt(ENCRYPTED_STRING_MSG));
+    }
+
+    /**
+     * Creates a {@link JasyptPBEncryptor} with the specified configuration parameters.
+     *
+     * @param password encryption password
+     * @param salt encryption salt
+     * @param poolSize number of encryptors of each type to pool together for high-performance
+     * encryption and decryption
+     * @param cleanable {@code true} if a {@link SimplePBEConfig} should be used, otherwise an
+     * anonymous implementation of {@link PBEConfig} will be used
+     * @return the {@link JasyptPBEncryptor} configured with the specified configuration parameters
+     */
+    private static JasyptPBEncryptor getEncryptor(final String password, final String salt,
+            final Integer poolSize, final boolean cleanable) {
+        final SaltGenerator saltGen;
+        if (salt == null) {
+            saltGen = null;
+        } else {
+            saltGen = new StringFixedSaltGenerator(salt);
+        }
+
+        final PBEConfig config;
+        if (cleanable) {
+            final SimplePBEConfig simpleCfg = new SimplePBEConfig();
+            simpleCfg.setPassword(password);
+            simpleCfg.setSaltGenerator(saltGen);
+            simpleCfg.setPoolSize(poolSize);
+
+            config = simpleCfg;
+        } else {
+            config = new PBEConfig() {
+                /**
+                 * {@inheritDoc}
+                 *
+                 * @return {@inheritDoc}
+                 */
+                public String getAlgorithm() {
+                    return null;
+                }
+
+                /**
+                 * {@inheritDoc}
+                 *
+                 * @return {@inheritDoc}
+                 */
+                public String getPassword() {
+                    return password;
+                }
+
+                /**
+                 * {@inheritDoc}
+                 *
+                 * @return {@inheritDoc}
+                 */
+                public Integer getKeyObtentionIterations() {
+                    return null;
+                }
+
+                /**
+                 * {@inheritDoc}
+                 *
+                 * @return {@inheritDoc}
+                 */
+                public SaltGenerator getSaltGenerator() {
+                    return saltGen;
+                }
+
+                /**
+                 * {@inheritDoc}
+                 *
+                 * @return {@inheritDoc}
+                 */
+                public String getProviderName() {
+                    return null;
+                }
+
+                /**
+                 * {@inheritDoc}
+                 *
+                 * @return {@inheritDoc}
+                 */
+                public Provider getProvider() {
+                    return null;
+                }
+
+                /**
+                 * {@inheritDoc}
+                 *
+                 * @return {@inheritDoc}
+                 */
+                public Integer getPoolSize() {
+                    return poolSize;
+                }
+            };
+        }
+
+        return new JasyptPBEncryptor(config);
     }
 
 }

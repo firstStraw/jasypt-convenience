@@ -25,6 +25,14 @@
     <developerConnection>scm:git:https://github.com/firstStraw/jasypt-convenience.git</developerConnection>
   </scm>
 
+  <developers>
+    <developer>
+      <name>Todd Dunlap</name>
+      <email>tdunlap@gmail.com</email>
+      <url>http://github.com/firststraw</url>
+    </developer>
+  </developers>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

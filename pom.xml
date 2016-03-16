@@ -21,6 +21,7 @@
   </licenses>
 
   <scm>
+    <url>https://github.com/firstStraw/jasypt-convenience</url>
     <connection>scm:git:https://github.com/firstStraw/jasypt-convenience.git</connection>
     <developerConnection>scm:git:https://github.com/firstStraw/jasypt-convenience.git</developerConnection>
   </scm>

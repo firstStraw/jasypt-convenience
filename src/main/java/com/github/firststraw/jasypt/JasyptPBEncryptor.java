@@ -2,6 +2,8 @@ package com.github.firststraw.jasypt;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import javax.inject.Inject;
+import org.apache.commons.lang3.Validate;
 import org.jasypt.encryption.pbe.PBEBigDecimalEncryptor;
 import org.jasypt.encryption.pbe.PBEBigIntegerEncryptor;
 import org.jasypt.encryption.pbe.PBEByteEncryptor;
@@ -24,8 +26,11 @@ public class JasyptPBEncryptor {
 
     private static final String NULL_MESSAGE_ERROR = "Message is null.";
     private static final String EMPTY_MESSAGE_ERROR = "Message is empty.";
+    private static final String NULL_OR_BLANK_MESSAGE_ERROR = "Message is null or blank.";
     private static final String NULL_ENCRYPTED_MESSAGE_ERROR = "Encrypted message is null.";
     private static final String EMPTY_ENCRYPTED_MESSAGE_ERROR = "Encrypted message is empty.";
+    private static final String NULL_OR_BLANK_ENCRYPTED_MESSAGE_ERROR =
+            "Encrypted message is null or blank.";
 
     private final PBEBigDecimalEncryptor decimalEncryptor;
     private final PBEBigIntegerEncryptor integerEncryptor;
@@ -40,14 +45,12 @@ public class JasyptPBEncryptor {
      * {@code null} or 1, then "standard" encryptors will be used. If the pool size is greater than
      * 1, then "pooled" encryptors will be used. If the configuration is an instance of
      * {@link PBECleanablePasswordConfig} then the password will be cleaned after it is copied.
-     *
      * @throws NullPointerException if no configuration is specified
      * @throws IllegalArgumentException if the configuration has a pool size that is less than 1
      */
+    @Inject
     public JasyptPBEncryptor(final PBEConfig config) {
-        if (config == null) {
-            throw new NullPointerException("Encryptor configuration is null.");
-        }
+        Validate.notNull(config, "Encryptor configuration is null.");
 
         /*
          * Copy the password and set it explicitly on each encryptor rather than letting the
@@ -137,9 +140,7 @@ public class JasyptPBEncryptor {
      * @throws NullPointerException if the message is {@code null}
      */
     public BigDecimal encrypt(final BigDecimal message) {
-        if (message == null) {
-            throw new NullPointerException(NULL_MESSAGE_ERROR);
-        }
+        Validate.notNull(message, NULL_MESSAGE_ERROR);
 
         return decimalEncryptor.encrypt(message);
     }
@@ -152,9 +153,7 @@ public class JasyptPBEncryptor {
      * @throws NullPointerException if the message is {@code null}
      */
     public BigInteger encrypt(final BigInteger message) {
-        if (message == null) {
-            throw new NullPointerException(NULL_MESSAGE_ERROR);
-        }
+        Validate.notNull(message, NULL_MESSAGE_ERROR);
 
         return integerEncryptor.encrypt(message);
     }
@@ -168,11 +167,8 @@ public class JasyptPBEncryptor {
      * @throws IllegalArgumentException if the message is empty
      */
     public byte[] encrypt(final byte[] message) {
-        if (message == null) {
-            throw new NullPointerException(NULL_MESSAGE_ERROR);
-        } else if (message.length == 0) {
-            throw new IllegalArgumentException(EMPTY_MESSAGE_ERROR);
-        }
+        Validate.notNull(message, NULL_MESSAGE_ERROR);
+        Validate.isTrue(message.length > 0, EMPTY_MESSAGE_ERROR);
 
         return byteEncryptor.encrypt(message);
     }
@@ -186,11 +182,7 @@ public class JasyptPBEncryptor {
      * @throws IllegalArgumentException if the message is empty
      */
     public String encrypt(final String message) {
-        if (message == null) {
-            throw new NullPointerException(NULL_MESSAGE_ERROR);
-        } else if (message.isEmpty()) {
-            throw new IllegalArgumentException(EMPTY_MESSAGE_ERROR);
-        }
+        Validate.notBlank(message, NULL_OR_BLANK_MESSAGE_ERROR);
 
         return stringEncryptor.encrypt(message);
     }
@@ -203,9 +195,7 @@ public class JasyptPBEncryptor {
      * @throws NullPointerException if the encrypted message is null
      */
     public BigDecimal decrypt(final BigDecimal encryptedMessage) {
-        if (encryptedMessage == null) {
-            throw new NullPointerException(NULL_ENCRYPTED_MESSAGE_ERROR);
-        }
+        Validate.notNull(encryptedMessage, NULL_ENCRYPTED_MESSAGE_ERROR);
 
         return decimalEncryptor.decrypt(encryptedMessage);
     }
@@ -218,9 +208,7 @@ public class JasyptPBEncryptor {
      * @throws NullPointerException if the encrypted message is null
      */
     public BigInteger decrypt(final BigInteger encryptedMessage) {
-        if (encryptedMessage == null) {
-            throw new NullPointerException(NULL_ENCRYPTED_MESSAGE_ERROR);
-        }
+        Validate.notNull(encryptedMessage, NULL_ENCRYPTED_MESSAGE_ERROR);
 
         return integerEncryptor.decrypt(encryptedMessage);
     }
@@ -234,11 +222,8 @@ public class JasyptPBEncryptor {
      * @throws IllegalArgumentException if the encrypted message is empty
      */
     public byte[] decrypt(final byte[] encryptedMessage) {
-        if (encryptedMessage == null) {
-            throw new NullPointerException(NULL_ENCRYPTED_MESSAGE_ERROR);
-        } else if (encryptedMessage.length == 0) {
-            throw new IllegalArgumentException(EMPTY_ENCRYPTED_MESSAGE_ERROR);
-        }
+        Validate.notNull(encryptedMessage, NULL_ENCRYPTED_MESSAGE_ERROR);
+        Validate.isTrue(encryptedMessage.length > 0, EMPTY_ENCRYPTED_MESSAGE_ERROR);
 
         return byteEncryptor.decrypt(encryptedMessage);
     }
@@ -252,11 +237,7 @@ public class JasyptPBEncryptor {
      * @throws IllegalArgumentException if the encrypted message is empty
      */
     public String decrypt(final String encryptedMessage) {
-        if (encryptedMessage == null) {
-            throw new NullPointerException(NULL_ENCRYPTED_MESSAGE_ERROR);
-        } else if (encryptedMessage.isEmpty()) {
-            throw new IllegalArgumentException(EMPTY_ENCRYPTED_MESSAGE_ERROR);
-        }
+        Validate.notBlank(encryptedMessage, NULL_OR_BLANK_ENCRYPTED_MESSAGE_ERROR);
 
         return stringEncryptor.decrypt(encryptedMessage);
     }

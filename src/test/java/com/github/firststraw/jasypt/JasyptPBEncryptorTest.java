@@ -1,14 +1,19 @@
 package com.github.firststraw.jasypt;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Provider;
+import javax.inject.Inject;
 import org.jasypt.encryption.pbe.config.PBEConfig;
 import org.jasypt.encryption.pbe.config.SimplePBEConfig;
 import org.jasypt.salt.SaltGenerator;
 import org.jasypt.salt.StringFixedSaltGenerator;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
@@ -41,7 +46,7 @@ public class JasyptPBEncryptorTest {
      * {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testConstructorNullConfig() {
+    public void testConstructor_NullConfig() {
         new JasyptPBEncryptor(null);
     }
 
@@ -52,8 +57,25 @@ public class JasyptPBEncryptorTest {
      * {@link IllegalArgumentException} is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorInvalidPoolSize() {
+    public void testConstructor_InvalidPoolSize() {
         getEncryptor(SALT, PASSWORD, 0, true);
+    }
+
+    /**
+     * Tests the
+     * {@link JasyptPBEncryptor#JasyptPBEncryptor(org.jasypt.encryption.pbe.config.PBEConfig)}
+     * constructor. Checks that the constructor has the correct annotations.
+     *
+     * @throws SecurityException won't happen in this test
+     * @throws NoSuchMethodException won't happen in this test
+     */
+    @Test
+    public void testConstructor_Annotations() throws SecurityException, NoSuchMethodException {
+        final Constructor<JasyptPBEncryptor> constructor =
+                JasyptPBEncryptor.class.getDeclaredConstructor(PBEConfig.class);
+        final Annotation[] annotations = constructor.getDeclaredAnnotations();
+        assertSame(1, annotations.length);
+        assertTrue(annotations[0] instanceof Inject);
     }
 
     /**
@@ -61,7 +83,7 @@ public class JasyptPBEncryptorTest {
      * the message is {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testEncryptBigDecimalNullMessage() {
+    public void testEncrypt_BigDecimal_NullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).encrypt((BigDecimal) null);
     }
 
@@ -70,7 +92,7 @@ public class JasyptPBEncryptorTest {
      * the message is {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testEncryptBigIntegerNullMessage() {
+    public void testEncrypt_BigInteger_NullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).encrypt((BigInteger) null);
     }
 
@@ -79,7 +101,7 @@ public class JasyptPBEncryptorTest {
      * {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testEncryptBytesNullMessage() {
+    public void testEncrypt_BytesNullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).encrypt((byte[]) null);
     }
 
@@ -88,7 +110,7 @@ public class JasyptPBEncryptorTest {
      * empty, then an {@link IllegalArgumentException} is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testEncryptBytesEmptyMessage() {
+    public void testEncrypt_BytesEmptyMessage() {
         getEncryptor(PASSWORD, SALT, null, true).encrypt(new byte[0]);
     }
 
@@ -97,7 +119,7 @@ public class JasyptPBEncryptorTest {
      * message is {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testEncryptStringNullMessage() {
+    public void testEncrypt_StringNullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).encrypt((String) null);
     }
 
@@ -106,7 +128,7 @@ public class JasyptPBEncryptorTest {
      * message is empty, then an {@link IllegalArgumentException} is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testEncryptStringEmptyMessage() {
+    public void testEncrypt_StringEmptyMessage() {
         getEncryptor(PASSWORD, SALT, null, true).encrypt("");
     }
 
@@ -115,7 +137,7 @@ public class JasyptPBEncryptorTest {
      * the message is {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testDecryptBigDecimalNullMessage() {
+    public void testDecrypt_BigDecimalNullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).decrypt((BigDecimal) null);
     }
 
@@ -124,7 +146,7 @@ public class JasyptPBEncryptorTest {
      * the message is {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testDecryptBigIntegerNullMessage() {
+    public void testDecrypt_BigIntegerNullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).decrypt((BigInteger) null);
     }
 
@@ -133,7 +155,7 @@ public class JasyptPBEncryptorTest {
      * {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testDecryptBytesNullMessage() {
+    public void testDecrypt_BytesNullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).decrypt((byte[]) null);
     }
 
@@ -142,7 +164,7 @@ public class JasyptPBEncryptorTest {
      * empty, then an {@link IllegalArgumentException} is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testDecryptBytesEmptyMessage() {
+    public void testDecrypt_BytesEmptyMessage() {
         getEncryptor(PASSWORD, SALT, null, true).decrypt(new byte[0]);
     }
 
@@ -151,7 +173,7 @@ public class JasyptPBEncryptorTest {
      * message is {@code null}, then a {@link NullPointerException} is thrown.
      */
     @Test(expected = NullPointerException.class)
-    public void testDecryptStringNullMessage() {
+    public void testDecrypt_StringNullMessage() {
         getEncryptor(PASSWORD, SALT, null, true).decrypt((String) null);
     }
 
@@ -160,7 +182,7 @@ public class JasyptPBEncryptorTest {
      * message is empty, then an {@link IllegalArgumentException} is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testDecryptStringEmptyMessage() {
+    public void testDecrypt_StringEmptyMessage() {
         getEncryptor(PASSWORD, SALT, null, true).decrypt("");
     }
 

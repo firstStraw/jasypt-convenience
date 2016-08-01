@@ -6,7 +6,7 @@
 
   <groupId>com.github.firststraw</groupId>
   <artifactId>jasypt-convenience</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>First Straw - Jasypt Convenience Library</name>
@@ -26,11 +26,16 @@
     <developerConnection>scm:git:https://github.com/firstStraw/jasypt-convenience.git</developerConnection>
   </scm>
 
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/firstStraw/jasypt-convenience/issues</url>
+  </issueManagement>
+
   <developers>
     <developer>
       <name>Todd Dunlap</name>
       <email>tdunlap@gmail.com</email>
-      <url>http://github.com/firststraw</url>
+      <url>https://github.com/firstStraw</url>
     </developer>
   </developers>
 
@@ -46,7 +51,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -59,7 +64,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
+            <version>2.10.4</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -91,10 +96,20 @@
 
   <dependencies>
     <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.4</version>
     </dependency>
     <dependency>
       <groupId>org.jasypt</groupId>

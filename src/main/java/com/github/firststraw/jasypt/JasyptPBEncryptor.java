@@ -3,6 +3,7 @@ package com.github.firststraw.jasypt;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.commons.lang3.Validate;
 import org.jasypt.encryption.pbe.PBEBigDecimalEncryptor;
 import org.jasypt.encryption.pbe.PBEBigIntegerEncryptor;
@@ -22,6 +23,7 @@ import org.jasypt.encryption.pbe.config.PBEConfig;
 /**
  * Provides a single entry point for encryption and decryption of various types.
  */
+@Named
 public class JasyptPBEncryptor {
 
     private static final String NULL_MESSAGE_ERROR = "Message is null.";
